@@ -349,45 +349,18 @@ class ConvertKit_API {
         $options = array(
             'api_secret' => $this->api_secret,
             'status' => 'all',
+            'email_address' => $email_address,
         );
 
         $this->create_log(sprintf("GET subscriber id from all subscribers: %s, %s, %s", $request, json_encode($options), $email_address));
 
-        $subscribers = $this->make_request( $request, 'GET', $options );
+        $result = $this->make_request( $request, 'GET', $options );
 
-        if( !$subscribers ) {
-            $this->create_log("No subscribers");
-            return false;
+        if( $result && isset( $result['subscribers'] ) && $result['subscribers'] ) {
+          return $result['subscribers'][0];
         }
 
-        $subscriber_id = $this::check_if_subscriber_in_array($email_address, $subscribers->subscribers);
-
-        if($subscriber_id) {
-            return $subscriber_id;
-        }
-
-        $total_pages = $subscribers->total_pages;
-
-        $this->create_log(sprintf("Total number of pages is %s", $total_pages));
-
-        for ( $i = 2; $i <= $total_pages; $i++ ) {
-            $options['page'] = $i;
-            $this->create_log(sprintf("Go to page %s", $i));
-            $subscribers = $this->make_request( $request, 'GET', $options );
-
-            if( !$subscribers ) {
-                return false;
-            }
-
-            $subscriber_id = $this::check_if_subscriber_in_array($email_address, $subscribers->subscribers);
-
-            if($subscriber_id) {
-                return $subscriber_id;
-            }
-        }
-
-        $this->create_log("Subscriber not found anywhere");
-
+        $this->create_log("Subscriber not found.");
         return false;
 
     }
@@ -604,28 +577,6 @@ class ConvertKit_API {
         }
 
         $this->create_log("Failed to finish request.");
-        return false;
-
-    }
-
-    /**
-     * Looks for subscriber with email in array
-     *
-     * @param $email_address
-     * @param $subscribers
-     *
-     * @return false|int  false if not found, else subscriber object
-     */
-    private function check_if_subscriber_in_array($email_address, $subscribers) {
-
-        foreach ($subscribers as $subscriber) {
-            if ($subscriber->email_address === $email_address) {
-                $this->create_log("Subscriber found!");
-                return $subscriber->id;
-            }
-        }
-
-        $this->create_log("Subscriber not found on current page.");
         return false;
 
     }
