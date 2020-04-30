@@ -210,7 +210,7 @@ class ConvertKit_API {
      */
     public function remove_tag( $user, $tag ) {
 
-        if( !is_int($user) || !is_string($user) || !is_int($tag) ) {
+        if( ( !is_int($user) && !is_string($user) ) || !is_int($tag) ) {
             throw new \InvalidArgumentException;
         }
 
