@@ -202,6 +202,38 @@ class ConvertKit_API {
     }
 
     /**
+     * Removes a tag from a subscriber
+     *
+     * @param  int|string  $user User ID or email
+     * @param  int         $tag Tag ID
+     * @return false|object
+     */
+    public function remove_tag( $user, $tag ) {
+
+        if( !is_int($user) || !is_string($user) || !is_int($tag) ) {
+            throw new \InvalidArgumentException;
+        }
+
+        $options = [
+          'api_secret' => $this->api_secret,
+        ];
+
+        if( is_int($user) ) {
+          $request = "$this->api_version/subscribers/{$user}/tags/{$tag}";
+          $request_type = 'DELETE';
+        } else {
+          $request = "$this->api_version/tags/{$tag}/unsubscribe";
+          $request_type = 'POST';
+
+          $options['email'] = $user;
+        }
+
+        $this->create_log(sprintf("POST remove tag: %s, %s, %s", $request, json_encode($options), $tag));
+
+        return $this->make_request( $request, $request_type, $options );
+    }
+
+    /**
      * Gets a resource index
      * Possible resources: forms, landing_pages, subscription_forms, tags
      *
