@@ -446,6 +446,11 @@ class ConvertKit_API {
           unset( $data['first_name'] );
         }
 
+        if ( array_key_exists( 'last_name', $data ) ) {
+          $options['last_name'] = $data['last_name'];
+          unset( $data['last_name'] );
+        }
+
         if ( array_key_exists( 'email_address', $data ) ) {
           $options['email_address'] = $data['email_address'];
           unset( $data['email_address'] );
